@@ -43,6 +43,11 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public Customer getCustomerById(Long id) {
+        return customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+    }
+
     public Optional<Customer> getUser(Long ownerId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Customer> query = cb.createQuery(Customer.class);

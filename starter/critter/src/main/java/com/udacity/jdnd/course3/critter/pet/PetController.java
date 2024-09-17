@@ -3,10 +3,10 @@ package com.udacity.jdnd.course3.critter.pet;
 import com.udacity.jdnd.course3.critter.service.PetService;
 import com.udacity.jdnd.course3.critter.service.UserService;
 import com.udacity.jdnd.course3.critter.user.Customer;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,21 +29,24 @@ public class PetController {
 
     @PostMapping
     public PetDTO savePet(@RequestBody PetDTO petDTO) {
-        String name = petDTO.getName();
-        PetType type = petDTO.getType();
-        Long ownerId = petDTO.getOwnerId();
-        LocalDate birthDate = petDTO.getBirthDate();
-        String notes = petDTO.getNotes();
-        Optional<Customer> customerOptional = userService.getUser(ownerId);
-        Pet pet = new Pet(name, type, customerOptional.orElse(new Customer()), birthDate, notes);
-        long petDTOId = petDTO.getId();
-        if (petDTOId != 0) {
-            pet = petService.getPet(petDTOId);
+        Pet pet = new Pet();
+        BeanUtils.copyProperties(petDTO, pet);
+
+        if (petDTO.getOwnerId() != null) {
+            Customer owner = userService.getCustomerById(petDTO.getOwnerId());
+            pet.setOwner(owner);
         }
 
-        Long id = petService.save(pet);
-        petDTO.setId(id);
+        Pet savedPet = petService.save(pet);
+        return convertPetToPetDTO(savedPet);
+    }
 
+    private PetDTO convertPetToPetDTO(Pet pet) {
+        PetDTO petDTO = new PetDTO();
+        BeanUtils.copyProperties(pet, petDTO);
+        if (pet.getOwner() != null) {
+            petDTO.setOwnerId(pet.getOwner().getId());
+        }
         return petDTO;
     }
 

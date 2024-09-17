@@ -22,20 +22,14 @@ public class PetService {
         this.customerRepository = customerRepository;
     }
 
-    public Long save(Pet pet) {
-        petRepository.save(pet);
+    public Pet save(Pet pet) {
+        Pet savedPet = petRepository.save(pet);
         Customer owner = pet.getOwner();
         if (owner != null) {
-            long customerId = owner.getId();
-            Optional<Customer> customerOptional = customerRepository.findById(customerId);
-            if (customerOptional.isPresent()) {
-                Customer customer = customerOptional.get();
-                customer.addPet(pet);
-                customerRepository.save(customer);
-            }
+            owner.addPet(savedPet);
+            customerRepository.save(owner);
         }
-
-        return pet.getId();
+        return savedPet;
     }
 
     public Pet getPet(long petId) {
