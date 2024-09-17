@@ -12,16 +12,19 @@ import java.util.Optional;
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
 
+    // service constructor
     public EmployeeService(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
     }
 
+    // save the employee
     public Long save(Employee employee) {
         employeeRepository.save(employee);
 
         return employee.getId();
     }
 
+    // find employee, param is id
     public Optional<Employee> findById(Long employeeId) {
         return employeeRepository.findById(employeeId);
     }
